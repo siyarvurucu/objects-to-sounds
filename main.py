@@ -38,10 +38,10 @@ def createTrackerByName(trackerType):
 
 
 # Set video to load
-videoPath = "singingobjects.avi"
-#videoPath = "http://192.168.1.4:4747/mjpegfeed?640x480"
-#videoPath = "http://10.42.0.186:4747/mjpegfeed?640x480"
-#videoPath = 0
+videoPath = "singingobjects.avi"                           # local video file
+#videoPath = "http://192.168.1.4:4747/mjpegfeed?640x480"   # this is for droidcam app
+#videoPath = "http://10.42.0.186:4747/mjpegfeed?640x480"   # this is for droidcam app
+#videoPath = 0                                             # this is for webcam. sometimes it is on '1'
 # Create a video capture object to read videos
 cap = cv2.VideoCapture(videoPath)
   
