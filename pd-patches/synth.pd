@@ -1,0 +1,105 @@
+#N canvas 776 148 701 647 10;
+#X obj 41 16 notein;
+#X obj 31 91 pack 0 0 0;
+#X obj 31 46 pack 0 0;
+#X obj 31 112 s carrier;
+#X obj 31 68 poly 8 1;
+#X obj 26 168 cnv 15 150 100 empty empty empty 20 12 0 14 -261234 -66577
+0;
+#X floatatom 77 213 5 0 0 0 1: ratioset ratio, f 5;
+#X text 85 191 ratio C:M;
+#X text 28 171 FM SYNTHESIS CONTROLS;
+#X floatatom 76 240 6 0 0 0 index= indexset index, f 6;
+#X floatatom 140 219 5 0 0 0 A Aset A, f 5;
+#X floatatom 141 239 5 0 0 0 R Rset R, f 5;
+#X obj 38 272 catch~ sumOut;
+#X obj 53 462 dac~;
+#X obj 67 308 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 38 423 *~ 0;
+#X obj 92 330 vsl 15 128 0 0.5 0 0 empty empty empty 0 -9 0 10 -262144
+-1 -1 0 1;
+#X obj 215 206 hsl 128 15 0 1 0 0 h1 h1set h1 -2 -8 0 10 -262144 -1
+-1 9525 1;
+#X obj 213 299 hsl 128 15 0 1 0 0 h4 h4set h4 -2 -8 0 10 -262144 -1
+-1 12065 1;
+#X obj 215 267 hsl 128 15 0 1 0 0 h3 h3set h3 -2 -8 0 10 -262144 -1
+-1 6350 1;
+#X obj 214 369 hsl 128 15 0 1 0 0 h6 h6set h6 -2 -8 0 10 -262144 -1
+-1 3810 1;
+#X obj 215 334 hsl 128 15 0 1 0 0 h5 h5set h5 -2 -8 0 10 -262144 -1
+-1 6350 1;
+#X obj 213 400 hsl 128 15 0 1 0 0 h7 h7set h7 -2 -8 0 10 -262144 -1
+-1 1270 1;
+#X obj 210 63 a.voiceFM 1;
+#N canvas 0 50 450 250 (subpatch) 0;
+#X array envelope 100 float 1;
+#A 0 0.107143 0.00714284 0.214286 0.00714284 0.314286 0.0285714 0.428571
+0.0357144 0.521429 0.0357144 0.607143 0.0357144 0.685714 0.0357144
+0.764286 0.0142846 0.842857 0.0142846 0.0142846 0.921429 0.0214276
+0.0214276 0.928571 0.0214276 0.885714 0.0285706 0.835714 0.0357136
+0.785714 0.0428566 0.7 0.0142844 0.0142844 0.435713 0.392855 0.349997
+0.321425 0.292853 0.26428 0.242851 0.228565 0.214279 0.199993 0.185707
+0.171421 0.149992 0.135706 0.12142 0.099991 0.085705 0.078562 0.0714189
+0.0642759 0.0428469 0.0357038 0.0142748 -0.00715429 -0.0142973 -0.0214403
+-0.0214403 0.0071224 0.0071224 -0.00716364 -0.00716364 -0.00716364
+-0.00716364 -0.0143067 -0.0143067 -0.0214497 -0.0214497 -0.0214497
+-0.0285927 -0.0357357 -0.0357357 -0.0357357 -0.0357357 -0.0357357 -0.0357357
+-0.0357357 -0.0357357 -0.0357357 -0.0357357 -0.0357357 -0.0357357 -0.0357357
+-0.0357357 -0.0357357 -0.0285927 -0.0285927 -0.0214497 -0.0214497 -0.0143067
+-0.00716364 -0.00716364 -2.06232e-05 0.0071224 0.0142654 -0.0143076
+-0.0214506 -0.0214506;
+#X coords 0 1 99 0 400 140 1 0 0;
+#X restore 162 464 graph;
+#X obj 599 537 array get envelope;
+#X obj 599 515 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 99 48 presets, f 8;
+#X obj 36 488 audio-monorec;
+#X obj 599 565 array set array2;
+#X obj 213 235 hsl 128 15 0 1 0 0 h2 h2set h2 -2 -8 0 10 -262144 -1
+-1 10160 1;
+#X text 512 609 4 seconds;
+#X text 249 183 harmonics;
+#X obj 210 83 a.voiceFM 2;
+#X obj 210 103 a.voiceFM 3;
+#X obj 210 123 a.voiceFM 4;
+#X obj 290 123 a.voiceFM 8;
+#X obj 290 103 a.voiceFM 7;
+#X obj 290 83 a.voiceFM 6;
+#X obj 290 63 a.voiceFM 5;
+#X obj 17 20 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 495 183 drum-machine;
+#X obj 465 42 ctlin;
+#X floatatom 423 93 5 0 0 0 - - -, f 5;
+#X floatatom 481 81 5 0 0 0 - - -, f 5;
+#X floatatom 531 60 5 0 0 0 - - -, f 5;
+#X obj 481 102 send inst;
+#X obj 421 121 send val;
+#X obj 567 113 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X connect 0 0 2 0;
+#X connect 0 0 40 0;
+#X connect 0 1 2 1;
+#X connect 0 2 27 0;
+#X connect 1 0 3 0;
+#X connect 2 0 4 0;
+#X connect 4 0 1 0;
+#X connect 4 1 1 1;
+#X connect 4 2 1 2;
+#X connect 12 0 15 0;
+#X connect 14 0 16 0;
+#X connect 15 0 13 0;
+#X connect 15 0 13 1;
+#X connect 15 0 28 0;
+#X connect 16 0 15 1;
+#X connect 25 0 29 0;
+#X connect 26 0 25 0;
+#X connect 42 0 43 0;
+#X connect 42 0 48 0;
+#X connect 42 1 44 0;
+#X connect 42 2 45 0;
+#X connect 43 0 47 0;
+#X connect 44 0 46 0;
+#X coords 0 -1 1 1 85 60 1 100 100;

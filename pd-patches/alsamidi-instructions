@@ -1,0 +1,5 @@
+connect midi device before starting puredata
+start puredata from terminal 'puredata -alsamidi -mididev 1'
+open terminal;
+aconnect -l  # shows list
+aconnect 'Oxygen 25':0 'Pure Data':0
