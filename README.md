@@ -5,6 +5,7 @@ you can find apps to use your phone as a camera: https://www.dev47apps.com/droid
 
 You can change the object tracker method in main.py
 
+
 Usage:
 
 start puredata from terminal using command:
@@ -12,6 +13,8 @@ $ puredata -alsamidi -mididev 1
 
 open synth.pd from pd-patches
 
+Set your video path in main.py
 run main.py
+
 
 
