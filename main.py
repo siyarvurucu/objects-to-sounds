@@ -4,8 +4,9 @@ import cv2
 import mido
 import numpy as np
 from random import random, randint
-
+import time
 import matplotlib.pyplot as plt
+from threading import Thread
 
 trackerTypes = ['BOOSTING', 'MIL', 'KCF','TLD', 'MEDIANFLOW', 'GOTURN', 'MOSSE', 'CSRT']
 
@@ -88,19 +89,20 @@ def drum(centers,sizes):
         # print(centers-np.roll(centers,1,axis=0)**2)
         centers_diff = np.sqrt(np.sum((centers-np.roll(centers,1,axis=1))**2,axis=0))/30
     stds = 1+np.sqrt(sizes_diff)/20
-    x = np.arange(-16,32,1)
+    a = np.arange(-16,32,1)
     if sizes.shape[0]==2:
         centers_diff = [centers_diff[0]]
         sizes = sizes[0]
         sizes_diff = sizes_diff[0]
         stds = [stds[0]]
+        
     for i,mu,sig in zip(np.arange(len(stds)),centers_diff,stds):
-        print("instrument no:"+ str(i))
-        print("mu")
-        print(mu)
-        print("sig")
-        print(sig)
-        y = sig*gaussian(x,mu,sig)
+        # print("instrument no:"+ str(i))
+        # print("mu")
+        # print(mu)
+        # print("sig")
+        # print(sig)
+        y = sig*gaussian(a,mu,sig)
         y = np.sum(y.reshape((-1,16)),axis=0)
         for j in range(16):
             if random()<y[j]:
@@ -108,19 +110,85 @@ def drum(centers,sizes):
                 drummessages.append(msg)
     
     return drummessages
+
+def lead(boxes,scale):
+    boxes = np.asarray(boxes)
+    centers = np.array([boxes[:,0] + boxes[:,2]/2,boxes[:,1] + boxes[:,3]/2])
+    msgs = []
     
-def generateMessages(boxes,count):
+    xyratios = boxes[:,2]/boxes[:,3]
+    if len(xyratios)==1:
+        xyratios_diff = xyratios*2
+    else:
+        xyratios_diff = 2*(xyratios[1:]-xyratios[:-1])
+    centers_diff = np.sqrt(np.sum((centers-np.roll(centers,1,axis=1))**2,axis=0))
+    if centers_diff.shape[0]==2:
+        centers_diff = [centers_diff[0]]
+    
+    prev_note = 7
+    octave = 0
+    for i in range(16):
+        center_diff = centers_diff[i%(len(xyratios_diff))]
+        rest_probability = np.exp(-center_diff/347.43)
+        # print(center_diff)
+        # print("prob")
+        # print(rest_probability)
+        if random()>rest_probability:
+            msg = mido.Message('note_off', channel=0)
+            msgs.append(msg)
+            msg = mido.Message('note_off', channel=0)
+            msgs.append(msg)
+            continue
+            
+        diff = xyratios_diff[i%(len(xyratios_diff))]
+        sample = int(np.random.normal(diff,2,1))
+        next_note = prev_note+sample
+        while (next_note)>14:
+            next_note = next_note-7
+            octave += 1
+        while (next_note)<0:
+            next_note = next_note+7
+            octave += -1
+        if octave>2:
+            octave = 0
+        if octave<-1:
+            octave = 0    
+        msg = mido.Message('note_on', channel=0, note=48+scale[next_note]+12*octave,velocity=80) 
+        msgs.append(msg)
+        msg = mido.Message('note_off', channel=0, note=48+scale[next_note]+12*octave,velocity=80)
+        msgs.append(msg)        
+        prev_note = next_note
+    return(msgs)
+
+def chords(boxes,sizes,scale):
+    onmsgs = []
+    offmsgs = []
+    xy = np.random.randint(2)
+    centers = boxes[:,xy] + boxes[:,xy+2]/2
+    for c in centers:
+        sample = int(np.random.normal(4*(c-(240+xy*80))/(240+xy*80),2,1)) # index to pick a note from scale. depends on x position of object and sampled from normal dist   
+        msg = mido.Message('note_on', channel=0, note=36+scale[sample]) 
+        onmsgs.append(msg)
+        msg = mido.Message('note_off', channel=0, note=36+scale[sample])
+        offmsgs.append(msg)     
+    return onmsgs,offmsgs
+    
+def generateMessages(boxes,scale):
     boxes = np.asarray(boxes)
     centers = np.array([boxes[:,0] + boxes[:,2]/2,boxes[:,1] + boxes[:,3]/2])
     #sizes = (boxes[:,2]-boxes[:,0])*(boxes[:,3]-boxes[:,1])
     sizes = (boxes[:,2])*(boxes[:,3])
-    messages = []
-    if count==0:
-        messages.extend(drum(centers,sizes))
+    
+    drummsg = drum(centers,sizes)
+    chordsmsg_on,chordsmsg_off = chords(boxes,sizes,scale)
     #msg = mido.Message('note_on', note=int(abs(boxes[0][0]/5)))
     #messages.append(msg)
-    return messages
-    
+    return drummsg, chordsmsg_on,chordsmsg_off
+
+def generateScale(boxes):
+    major = np.array([0,2,4,5,7,9,11])
+    major = np.concatenate((major-12,major,np.array([12])),axis=0)  # spanning 2 octaves intervals
+    return major
 def getObject(frame):
     while True:
       # draw bounding boxes over objects
@@ -180,6 +248,7 @@ def measure(frame):
         y = sig*gaussian(x,mu,sig)
         y = np.sum(y.reshape((-1,16)),axis=0)
         plt.plot(y)
+        plt.title("probability distribution of intrument %d on 16 beats" %i)
         plt.show()
     while True:
         print("Press 'm' to continue")
@@ -187,9 +256,36 @@ def measure(frame):
         if (k == 109):  # m
             break
 
+def leadplay(leadmessages): 
+    duration = [1]
+    idur = 0
+    offmsg = mido.Message('note_off', channel=0, note=60) # dummy off message
+    while leadmessages:
+        if time.time()%(duration[idur]*0.24)>((duration[idur]*0.24)-0.005) or time.time()%(duration[idur]*0.24)<0.005:           
+            outport.send(offmsg)
+            msg = leadmessages.pop(0)
+            outport.send(msg)
+            offmsg = leadmessages.pop(0)
+            
+            idur = (idur+1)%1
+            time.sleep(0.01)
+        else:
+            time.sleep(0.01)
+    outport.send(offmsg)  
+    
 def show():
     count = 0
-    while cap.isOpened():
+    globstart = time.time()
+    drumtime = globstart
+    leadtime = globstart
+    scaletime = globstart
+    c = globstart + 16
+    leadmessages = []
+    chordsmsg_off = []
+    #offmsg = mido.Message('note_off', channel=0, note=60) # dummy off message
+    leadplayer= Thread(target=leadplay,args=(leadmessages,))
+    while cap.isOpened(): 
+        
         success, frame = cap.read()
         if not success:
             break
@@ -205,15 +301,41 @@ def show():
             cv2.rectangle(frame, p1, p2, colors[i], 2, 1)
         cv2.imshow('MultiTracker', frame)  
         
+        if (c-scaletime)>15.36:
+            scale = generateScale(boxes)
+            scaletime = time.time()
+           
+        c = time.time() # current time
         
         if boxes != ():
-            count += 1
-            if count%40==0:
-                messages = generateMessages(boxes,count%40)
-                for msg in messages:
-                    #print(msg)
+            if (c-drumtime)>3.74:
+                drumtime = time.time()
+                for msg in chordsmsg_off:
                     outport.send(msg)
-                
+                drummessages, chordsmsg_on,chordsmsg_off = generateMessages(boxes,scale)
+                for msg in drummessages:
+                    outport.send(msg)
+                for msg in chordsmsg_on:
+                    outport.send(msg)   
+        c = time.time() 
+                    
+        
+        if boxes != ():  # creating new lead note messages
+            if (c-leadtime)>(8*0.240):
+                #outport.send(offmsg)
+                leadtime = time.time()
+                if len(leadmessages)<8:                   
+                    leadmessages.extend(lead(boxes,scale))
+                # else:
+                    # msg = leadmessages.pop(0)
+                    # outport.send(msg)
+                    # offmsg = leadmessages.pop(0)
+        
+        
+        
+        if not leadplayer.is_alive():
+            leadplayer= Thread(target=leadplay,args=(leadmessages,))
+            leadplayer.start()           
         k = cv2.waitKey(10) & 0xFF  # (msec) delay
         
         if (k == 103):  # g is pressed
@@ -222,6 +344,13 @@ def show():
             break
         if (k == 109):  # m is pressed
             measure(frame)
+    
+    while leadplayer.is_alive(): # wait for lead thread to push all messages
+        time.sleep(0.1)
+    msg = mido.Message('control_change',channel=0,control=24,value = 16) # disable drum machine
+    outport.send(msg)
+    for msg in chordsmsg_off:  # send any note off messages left
+        outport.send(msg)
 print("Press g to select object to track")
 show()
 

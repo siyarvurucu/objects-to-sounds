@@ -19,4 +19,6 @@ run main.py
 During video playback, press 'g' to select objects with your mouse. 
 After selecting, press spacebar to confirm. Press any key to select another object or press 'q' to start tracking. You can select new objects by pressing 'g' any time.
 
+press 'm' to freeze the frame and get current calculations. press 'm' to continue
+
 
