@@ -1,4 +1,4 @@
-#N canvas 776 148 701 647 10;
+#N canvas 635 148 701 647 10;
 #X obj 41 16 notein;
 #X obj 31 91 pack 0 0 0;
 #X obj 31 46 pack 0 0;
@@ -14,23 +14,23 @@
 #X floatatom 141 239 5 0 0 0 R Rset R, f 5;
 #X obj 38 272 catch~ sumOut;
 #X obj 53 462 dac~;
-#X obj 67 308 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+#X obj 65 313 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
 1;
 #X obj 38 423 *~ 0;
 #X obj 92 330 vsl 15 128 0 0.5 0 0 empty empty empty 0 -9 0 10 -262144
 -1 -1 0 1;
 #X obj 215 206 hsl 128 15 0 1 0 0 h1 h1set h1 -2 -8 0 10 -262144 -1
--1 9525 1;
+-1 0 1;
 #X obj 213 299 hsl 128 15 0 1 0 0 h4 h4set h4 -2 -8 0 10 -262144 -1
--1 12065 1;
+-1 0 1;
 #X obj 215 267 hsl 128 15 0 1 0 0 h3 h3set h3 -2 -8 0 10 -262144 -1
--1 6350 1;
+-1 0 1;
 #X obj 214 369 hsl 128 15 0 1 0 0 h6 h6set h6 -2 -8 0 10 -262144 -1
--1 3810 1;
+-1 0 1;
 #X obj 215 334 hsl 128 15 0 1 0 0 h5 h5set h5 -2 -8 0 10 -262144 -1
--1 6350 1;
+-1 0 1;
 #X obj 213 400 hsl 128 15 0 1 0 0 h7 h7set h7 -2 -8 0 10 -262144 -1
--1 1270 1;
+-1 0 1;
 #X obj 210 63 a.voiceFM 1;
 #N canvas 0 50 450 250 (subpatch) 0;
 #X array envelope 100 float 1;
@@ -54,11 +54,11 @@
 #X obj 599 537 array get envelope;
 #X obj 599 515 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
 -1 -1;
-#X obj 99 48 presets, f 8;
+#X obj 94 64 presets, f 8;
 #X obj 36 488 audio-monorec;
 #X obj 599 565 array set array2;
 #X obj 213 235 hsl 128 15 0 1 0 0 h2 h2set h2 -2 -8 0 10 -262144 -1
--1 10160 1;
+-1 0 1;
 #X text 512 609 4 seconds;
 #X text 249 183 harmonics;
 #X obj 210 83 a.voiceFM 2;
@@ -70,19 +70,22 @@
 #X obj 290 63 a.voiceFM 5;
 #X obj 17 20 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
-#X obj 495 183 drum-machine;
+#X obj 517 181 drum-machine;
 #X obj 465 42 ctlin;
 #X floatatom 423 93 5 0 0 0 - - -, f 5;
-#X floatatom 481 81 5 0 0 0 - - -, f 5;
-#X floatatom 531 60 5 0 0 0 - - -, f 5;
-#X obj 481 102 send inst;
+#X floatatom 478 89 5 0 0 0 - - -, f 5;
+#X obj 480 110 send inst;
 #X obj 421 121 send val;
-#X obj 567 113 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
--1 -1;
+#X obj 441 44 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 94 41 - 1;
+#X obj 550 74 - 1;
+#X obj 550 99 send drumenable;
+#X text 84 311 VOLUME;
 #X connect 0 0 2 0;
 #X connect 0 0 40 0;
 #X connect 0 1 2 1;
-#X connect 0 2 27 0;
+#X connect 0 2 48 0;
 #X connect 1 0 3 0;
 #X connect 2 0 4 0;
 #X connect 4 0 1 0;
@@ -97,9 +100,11 @@
 #X connect 25 0 29 0;
 #X connect 26 0 25 0;
 #X connect 42 0 43 0;
-#X connect 42 0 48 0;
+#X connect 42 0 47 0;
 #X connect 42 1 44 0;
-#X connect 42 2 45 0;
-#X connect 43 0 47 0;
-#X connect 44 0 46 0;
+#X connect 42 2 49 0;
+#X connect 43 0 46 0;
+#X connect 44 0 45 0;
+#X connect 48 0 27 0;
+#X connect 49 0 50 0;
 #X coords 0 -1 1 1 85 60 1 100 100;
